@@ -45,6 +45,9 @@ Escribe notas y registro en **español**.
      <video> <json>` y anota la URL.
    - Si no: `bash automatizacion/aviso_youtube.sh <carpeta>` (sube los dos videos a un release privado de `datos` y avisa por correo
      en el issue «Pendientes de subir a YouTube» con los textos).
+   - **Facebook** (independiente de YouTube): si existe `credenciales/facebook.json` y tiene ese idioma,
+     `python3 -I scripts/fb_upload.py <idioma> <video> <json>` publica el Reel en la página (Adentro TV / Inside TV) y imprime la URL.
+     Si falla, anota el error en el registro y sigue con el otro idioma.
    - Cambia el item de la cola a `estado: publicado` con la fecha.
 8. **Registra**:
    - Nota `datos/cerebro-adentro/Shorts/AAAA-MM-DD <Tema>.md` con la plantilla `datos/cerebro-adentro/Plantillas/Short.md`: fuentes con enlace y nivel,

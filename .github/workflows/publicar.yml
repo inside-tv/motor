@@ -64,11 +64,13 @@ jobs:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_TOKEN_ES: ${{ secrets.YT_TOKEN_ES }}
           YT_TOKEN_EN: ${{ secrets.YT_TOKEN_EN }}
+          FB_PAGES: ${{ secrets.FB_PAGES }}
         run: |
           mkdir -p credenciales && chmod 700 credenciales
           printf '%s' "$YT_CLIENT_SECRET" > credenciales/youtube_client_secret.json
           [ -z "$YT_TOKEN_ES" ] || printf '%s' "$YT_TOKEN_ES" > credenciales/youtube_token_es.json
           [ -z "$YT_TOKEN_EN" ] || printf '%s' "$YT_TOKEN_EN" > credenciales/youtube_token_en.json
+          [ -z "$FB_PAGES" ] || printf '%s' "$FB_PAGES" > credenciales/facebook.json
           chmod 600 credenciales/*
 
       - name: Claude produce y publica
