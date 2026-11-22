@@ -6,7 +6,7 @@ Los datos privados (cerebro, cola, registro, producción) están en la carpeta `
 Escribe notas y registro en **español**.
 
 ## Reglas que no se rompen
-- **Salud con rigor** (ver `datos/cerebro/03 Fuentes médicas.md`): cada dato del guion sale de **una fuente de nivel 1 o dos de nivel 2**.
+- **Salud con rigor** (ver `datos/cerebro-adentro/03 Fuentes médicas.md`): cada dato del guion sale de **una fuente de nivel 1 o dos de nivel 2**.
   Abre la página con WebFetch y comprueba el dato en el texto. Nada de consejos de tratamiento, dosis ni diagnósticos; nada contra el
   consenso médico. Si un tema obliga a eso, descártalo (`estado: descartado` con el motivo) y toma el siguiente.
 - Canal **sin cara y sin autor**: nunca menciones a personas reales como autores ni a otros canales.
@@ -16,8 +16,8 @@ Escribe notas y registro en **español**.
   este repositorio es público y sus registros también.
 
 ## Pasos
-1. **Contexto**: lee `datos/cerebro/01 Estrategia.md`, `datos/cerebro/02 Aprendizajes.md`, `datos/cola/temas.json` y las 5 notas más
-   recientes de `datos/cerebro/Shorts/`.
+1. **Contexto**: lee `datos/cerebro-adentro/01 Estrategia.md`, `datos/cerebro-adentro/02 Aprendizajes.md`, `datos/cola/temas.json` y las 5 notas más
+   recientes de `datos/cerebro-adentro/Shorts/`.
 2. **Tema**: el primer item `pendiente` de la cola **sin** `"formato": "largo"`. Si la cola tiene menos de 5 pendientes, añade 10 ideas
    nuevas al final siguiendo la fórmula de la estrategia y lo que funcione en `02 Aprendizajes.md` (no repitas temas ya hechos en `Shorts/`).
 3. **Investiga** el tema en 2–3 fuentes médicas y apunta qué dato respalda cada una.
@@ -47,9 +47,9 @@ Escribe notas y registro en **español**.
      en el issue «Pendientes de subir a YouTube» con los textos).
    - Cambia el item de la cola a `estado: publicado` con la fecha.
 8. **Registra**:
-   - Nota `datos/cerebro/Shorts/AAAA-MM-DD <Tema>.md` con la plantilla `datos/cerebro/Plantillas/Short.md`: fuentes con enlace y nivel,
+   - Nota `datos/cerebro-adentro/Shorts/AAAA-MM-DD <Tema>.md` con la plantilla `datos/cerebro-adentro/Plantillas/Short.md`: fuentes con enlace y nivel,
      URLs y clips usados (de `clips.json`).
    - `datos/registro/AAAA-MM-DD.md`: sección `## Franja 12:00` o `## Franja 19:00` (exactamente así, el respaldo del cron la busca)
      con tema, duración, URLs o aviso, y problemas.
    - No hagas commit: el workflow guarda los cambios.
-9. **Jueves, franja 19**: lee las notas con métricas y actualiza `datos/cerebro/02 Aprendizajes.md` con conclusiones que citen cifras.
+9. **Jueves, franja 19**: lee las notas con métricas y actualiza `datos/cerebro-adentro/02 Aprendizajes.md` con conclusiones que citen cifras.
