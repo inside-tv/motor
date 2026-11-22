@@ -40,7 +40,7 @@ Escribe notas y registro en **español**.
 7. **Publica** cada idioma en su canal:
    - Metadatos en `entrega/<idioma>.json`: `title`, `description` (2–3 frases con el dato clave, «Narración con voz generada por IA.»,
      «Fuentes:» con los enlaces, créditos «Clips: Pixabay», «Música: HookSounds» y 3–5 hashtags), `tags`, `categoryId` `"27"` (Educación),
-     `publishAt` null, `privacy` `"public"`, `synthetic` true.
+     `publishAt` null, `privacy` `"public"`, `synthetic` false (la voz de narrador no imita a una persona real y los clips son reales: no requiere etiqueta; ponlo en true solo si algún día hay imagen realista generada con IA, y añade `"ia_visual": true`).
    - Si `YT_AUDITORIA_OK` es `1`: `python3 -I scripts/yt_upload.py credenciales/youtube_client_secret.json credenciales/youtube_token_<idioma>.json
      <video> <json>` y anota la URL.
    - Si no: `bash automatizacion/aviso_youtube.sh <carpeta>` (sube los dos videos a un release privado de `datos` y avisa por correo
