@@ -41,8 +41,9 @@ Escribe notas y registro en **español**.
      y míralos con Read: textos legibles, nada tapado, y **el fondo tiene que ver con lo que se dice**. Si un clip no encaja, cambia esa
      búsqueda en `clips`, borra `clips.json` y vuelve a producir (máximo 2 veces).
 7. **Publica** cada idioma en su canal:
-   - Metadatos en `entrega/<idioma>.json`: `title`, `description` (2–3 frases con el dato clave, «Narración con voz generada por IA.»,
-     «Fuentes:» con los enlaces, créditos «Clips: Pixabay», «Música: HookSounds» y 3–5 hashtags), `tags`, `categoryId` `"27"` (Educación),
+   - Metadatos en `entrega/<idioma>.json`: `title`, `description` (2–3 frases con el dato clave, después una línea en blanco y «Música: HookSounds» (en inglés «Music: HookSounds») — la licencia gratis
+     exige ese crédito —, y al final 3–5 hashtags; **sin** «voz generada por IA», sin «Fuentes:» ni enlaces y sin «Clips: Pixabay»: las fuentes
+     van solo en `guion.json` y en la nota del cerebro), `tags`, `categoryId` `"27"` (Educación),
      `publishAt` null, `privacy` `"public"`, `synthetic` false (la voz de narrador no imita a una persona real y los clips son reales: no requiere etiqueta; ponlo en true solo si algún día hay imagen realista generada con IA, y añade `"ia_visual": true`).
    - Si `YT_AUDITORIA_OK` es `1`: `python3 -I scripts/yt_upload.py credenciales/youtube_client_secret.json credenciales/youtube_token_<idioma>.json
      <video> <json>` y anota la URL.
@@ -51,6 +52,9 @@ Escribe notas y registro en **español**.
    - **Facebook** (independiente de YouTube): si existe `credenciales/facebook.json` y tiene ese idioma,
      `python3 -I scripts/fb_upload.py <idioma> <video> <json>` publica el Reel en la página (Adentro TV / Inside TV) y imprime la URL.
      Si falla, anota el error en el registro y sigue con el otro idioma.
+   - **Instagram**: si ese idioma tiene `ig_id` en `credenciales/facebook.json`,
+     `python3 -I scripts/ig_upload.py <idioma> <video> <json>` publica el Reel en @adentrotv.es / @insidetv.en e imprime la URL.
+     Si falla, anota el error y sigue.
    - Cambia el item de la cola a `estado: publicado` con la fecha.
 8. **Registra**:
    - Nota `datos/cerebro-adentro/Shorts/AAAA-MM-DD <Tema>.md` con la plantilla `datos/cerebro-adentro/Plantillas/Short.md`: fuentes con enlace y nivel,
