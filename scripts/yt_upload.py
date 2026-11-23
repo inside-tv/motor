@@ -10,12 +10,14 @@ from yt_auth import access_token
 
 secret, token, video, meta_f = sys.argv[1:5]
 meta = json.load(open(meta_f))
+# en.json → English; anything else keeps Spanish (the meta can also say it with "lang")
+LANG = meta.get("lang") or ("en" if os.path.basename(meta_f).startswith("en") else "es")
 tok = access_token(secret, token)
 status = {"privacyStatus": "private" if meta.get("publishAt") else meta.get("privacy", "private"),
-          "selfDeclaredMadeForKids": False, "containsSyntheticMedia": bool(meta.get("synthetic", True))}
+          "selfDeclaredMadeForKids": False, "containsSyntheticMedia": bool(meta.get("synthetic", False))}
 if meta.get("publishAt"): status["publishAt"] = meta["publishAt"]
 body = {"snippet": {"title": meta["title"][:100], "description": meta.get("description", "")[:5000], "tags": meta.get("tags", []),
-                    "categoryId": meta.get("categoryId", "28"), "defaultLanguage": "es", "defaultAudioLanguage": "es"}, "status": status}
+                    "categoryId": meta.get("categoryId", "28"), "defaultLanguage": LANG, "defaultAudioLanguage": LANG}, "status": status}
 
 size = os.path.getsize(video)
 init = urllib.request.Request("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
