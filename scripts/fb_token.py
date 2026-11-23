@@ -37,7 +37,10 @@ print("páginas que ve la app:", ", ".join(f"{p['name']} ({p.get('username') or 
 out = {}
 for lang, (name, user) in PAGES.items():
     p = next((p for p in pages if p.get("username") == user or p["name"].strip().lower() == name.lower()), None)
-    if not p: print(f"⚠ no encontré la página «{name}»"); continue
+    if not p:  # pages owned by a business portfolio don't show up in me/accounts without business_management: ask by username
+        pid = get(user, fields="id", access_token=tok)["id"]
+        p = {"id": pid, "name": name, **get(pid, fields="access_token,instagram_business_account{id,username}", access_token=tok)}
+    if "access_token" not in p: print(f"⚠ sin token para la página «{name}»"); continue
     exp = get("debug_token", input_token=p["access_token"], access_token=f"{app['id']}|{app['secret']}")["data"].get("expires_at")
     out[lang] = {"id": p["id"], "name": p["name"], "token": p["access_token"]}
     ig = p.get("instagram_business_account")
