@@ -14,14 +14,17 @@ app_id = input("ID de la app: ").strip()
 secret = getpass.getpass("Clave secreta de la app (no se verá): ").strip()
 short = getpass.getpass("Token de usuario del Explorador (no se verá): ").strip()
 long_user = get("oauth/access_token", grant_type="fb_exchange_token", client_id=app_id, client_secret=secret, fb_exchange_token=short)["access_token"]
-pages = get("me/accounts", fields="id,name,access_token", access_token=long_user, limit=100).get("data", [])
+pages = get("me/accounts", fields="id,name,access_token,instagram_business_account{id,username}", access_token=long_user, limit=100).get("data", [])
 out = {}
 for lang, name in NAMES.items():
     p = next((p for p in pages if p["name"].strip().lower() == name.lower()), None)
     if not p: print(f"⚠ no encontré la página «{name}» (¿la marcaste al autorizar?)"); continue
     exp = get("debug_token", input_token=p["access_token"], access_token=f"{app_id}|{secret}")["data"].get("expires_at")
     out[lang] = {"id": p["id"], "name": p["name"], "token": p["access_token"]}
-    print(f"✓ {name}: página {p['id']} · token {'sin caducidad' if not exp else 'caduca ' + str(exp)}")
+    ig = p.get("instagram_business_account")
+    if ig: out[lang]["ig_id"] = ig["id"]
+    print(f"✓ {name}: página {p['id']} · token {'sin caducidad' if not exp else 'caduca ' + str(exp)}"
+          f" · Instagram {'@' + ig.get('username', '?') if ig else 'sin vincular'}")
 if not out: sys.exit("no se guardó nada")
 root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 f = os.path.join(root, "credenciales", "facebook.json")
