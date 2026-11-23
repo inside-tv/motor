@@ -1,0 +1,61 @@
+# Publish the scheduled shorts (datos/cola/programados.json) on Facebook and Instagram when their time comes.
+# Plain Python, no Claude: checks every hour and does nothing if nothing is due.
+name: Publicar programados
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: programados
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  programados:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATOS_REPO: ${{ vars.DATOS_REPO }}
+      GH_TOKEN: ${{ secrets.DATOS_PAT }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.DATOS_REPO }}
+          token: ${{ secrets.DATOS_PAT }}
+          path: datos
+
+      - id: hay
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import datetime, json, os
+          f = "datos/cola/programados.json"
+          items = json.load(open(f)) if os.path.exists(f) else []
+          now = datetime.datetime.now(datetime.timezone.utc)
+          due = [i for i in items if datetime.datetime.fromisoformat(i["cuando"]) <= now
+                 and any(not str(v).startswith("http") for v in [i.get("publicado", {}).get(f"{p}_{l}", "") for p in i.get("plataformas", ["facebook", "instagram"]) for l in i.get("idiomas", ["es", "en"])])]
+          print("si=" + ("si" if due else "no"))
+          PY
+
+      - name: Publicar
+        if: steps.hay.outputs.si == 'si'
+        env:
+          FB_PAGES: ${{ secrets.FB_PAGES }}
+        run: |
+          mkdir -p credenciales && chmod 700 credenciales
+          printf '%s' "$FB_PAGES" > credenciales/facebook.json && chmod 600 credenciales/facebook.json
+          python3 -I scripts/programados.py datos
+
+      - name: Guardar
+        if: always() && steps.hay.outputs.si == 'si'
+        working-directory: datos
+        run: |
+          git config user.name "Adentro Bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add cola/programados.json
+          git diff --cached --quiet || { git commit -qm "Programados: $(date -u +%F)"; git pull -q --rebase --autostash && git push -q; }
