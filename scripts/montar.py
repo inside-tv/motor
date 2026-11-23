@@ -19,16 +19,30 @@ def dur(p):
     with wave.open(p) as w: return w.getnframes() / w.getframerate()
 assert len(L["lineas"]) == len(G["clips"]), "cada línea necesita su clip"
 
+# ---- closing call to follow, spoken over the last clip. "Síguenos" works on YouTube and Facebook alike.
+# The guion may bring its own "cierre" (e.g. when the topic really can save a life); otherwise one of these, fixed per slug.
+CIERRES = {
+    "es": ["Síguenos para no perderte lo que pasa dentro de tu cuerpo.",
+           "Síguenos: un dato así puede ayudarte el día que más lo necesites.",
+           "Síguenos y entiende a tu cuerpo antes de que te dé un susto."],
+    "en": ["Follow for more of what happens inside your body.",
+           "Follow us: a fact like this could help you the day you need it most.",
+           "Follow and understand your body before it gives you a scare."],
+}
+cierre = L.get("cierre") or CIERRES[LANG][sum(map(ord, G.get("slug", ""))) % len(CIERRES[LANG])]
+
 # ---- narration: one edge-tts call per line, laid end to end with short gaps ----
-t, parts, words, lines = LEAD, [], [], []
-for i, text in enumerate(L["lineas"]):
+t, parts, words, lines, cta_start = LEAD, [], [], [], None
+for i, text in enumerate(L["lineas"] + [cierre]):
     b = f"{WD}/voz/{i:02d}"
     if not os.path.exists(b + ".words.json"):
         run(sys.executable, f"{HERE}/voz.py", LANG, b, text)
     run(FF, "-v", "error", "-y", "-i", b + ".mp3", "-ac", "1", "-ar", str(SR), b + ".wav")
     d = dur(b + ".wav")
     for w in json.load(open(b + ".words.json")): words.append({"text": w["text"], "start": t + w["start"], "end": t + w["end"], "line": i})
-    lines.append({"start": t, "end": t + d}); parts.append((t, b + ".wav")); t += d + GAP
+    if i < len(L["lineas"]): lines.append({"start": t, "end": t + d})
+    else: cta_start = t  # the closing line has no clip of its own: the last clip runs under it
+    parts.append((t, b + ".wav")); t += d + GAP
 DUR = t - GAP + TAIL
 
 ins, fx = [], []
@@ -105,8 +119,9 @@ for k, w in enumerate(words):
     nxt = words[k + 1] if k + 1 < len(words) else None
     if len(cur) == 3 or not nxt or nxt["line"] != w["line"] or nxt["start"] - w["end"] > 0.25:
         caps.append({"start": cur[0]["start"], "end": (nxt["start"] if nxt and nxt["line"] == w["line"] else w["end"] + 0.25), "words": cur}); cur = []
-BRAND = {"es": ("ADENTRO TV", "Sigue a @adentrotv para más"), "en": ("INSIDE TV", "Follow @insidetv for more")}
+BRAND = {"es": ("ADENTRO TV", "Síguenos: Adentro TV"), "en": ("INSIDE TV", "Follow: Inside TV")}  # same text fits YouTube and Facebook
 tl = {"duration": DUR, "lang": LANG, "hook": L["hook"], "hi": [h.lower() for h in L.get("hi", [])], "brand": BRAND[LANG][0], "cta": BRAND[LANG][1],
+      "cta_start": cta_start,
       "bg": os.path.abspath(f"{WD}/bg.mp4"), "lines": lines, "captions": caps}
 json.dump(tl, open(f"{WD}/timeline.json", "w"), ensure_ascii=False, indent=1)
 json.dump(credits, open(f"{WD}/creditos.json", "w"), ensure_ascii=False, indent=1)

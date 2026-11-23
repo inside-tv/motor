@@ -81,7 +81,8 @@ function progress(ctx, t) {
 }
 
 function cta(ctx, t) {
-  const a = easeOut(prog(t, TL.duration - 1.6, TL.duration - 1.2));
+  const s = TL.cta_start ?? TL.duration - 1.6;  // the pill shows up when the closing line is spoken
+  const a = easeOut(prog(t, s, s + 0.4));
   if (a <= 0) return;
   ctx.save(); ctx.globalAlpha = a; ctx.font = '54px QB, EMO'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   const w = ctx.measureText(TL.cta).width + 80, y = 1480 + (1 - a) * 40;

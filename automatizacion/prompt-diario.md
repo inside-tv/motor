@@ -25,6 +25,9 @@ Escribe notas y registro en **español**.
    `datos/produccion/2026-11-21_muela/guion.json`:
    - 6–8 líneas por idioma, la misma cantidad en `es` y `en`, cada una ≤ 18 palabras. Línea 1 = la pregunta del gancho.
      Penúltima = consecuencia práctica o dato sorpresa. Última = pregunta corta a comentarios.
+   - El cierre «Síguenos…» lo añade el motor solo (no lo escribas en `lineas`). Solo si el tema de verdad puede salvar una vida
+     (infarto, ictus, atragantamiento, alergia grave…) pon `"cierre"` en cada idioma, ≤ 12 palabras, p. ej.
+     «Síguenos: saber esto a tiempo puede salvar una vida.» / «Follow us: knowing this in time can save a life.»
    - Español neutro latino (pajita/popote → usa «pajita»; evita vosotros). Inglés natural de EE. UU., no traducción literal.
    - Cifras escritas como se dicen («uno a tres días»), sin símbolos raros.
    - `hook` ≤ 8 palabras. `hi` = 2–4 palabras clave por idioma (en minúsculas, tal como aparecen).
@@ -33,7 +36,7 @@ Escribe notas y registro en **español**.
    - `titulo`: ≤ 100 caracteres con `#shorts` y 2 hashtags del tema. `fuentes`: lista con url, nivel y qué respalda.
 5. **Produce**: `bash automatizacion/producir.sh datos/produccion/<carpeta>` (crea `entrega/es.mp4` y `entrega/en.mp4`).
 6. **Control de calidad**:
-   - Duración 20–45 s cada uno.
+   - Duración 20–48 s cada uno (incluye el cierre de ~4 s).
    - Extrae 4 fotogramas de cada video (`scripts/node_modules/ffmpeg-static/ffmpeg -ss T -i video -frames:v 1 -vf scale=360:-1 x.png`)
      y míralos con Read: textos legibles, nada tapado, y **el fondo tiene que ver con lo que se dice**. Si un clip no encaja, cambia esa
      búsqueda en `clips`, borra `clips.json` y vuelve a producir (máximo 2 veces).
