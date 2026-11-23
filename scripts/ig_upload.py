@@ -18,18 +18,31 @@ def call(url, data=None, headers=None, body=None):
     try:
         with urllib.request.urlopen(req, timeout=300) as r: return json.load(r)
     except urllib.error.HTTPError as e:  # never echo the token
-        sys.exit(f"Instagram respondió {e.code}: {e.read().decode()[:400]}")
+        raise RuntimeError(f"Instagram respondió {e.code}: {e.read().decode()[:400]}")
 
 G = f"https://graph.facebook.com/{V}"
 caption = (meta["title"].split(" #")[0] + "\n\n" + meta["description"])[:2200]
-c = call(f"{G}/{ig}/media", {"media_type": "REELS", "upload_type": "resumable", "caption": caption, "share_to_feed": "true"})
-call(c.get("uri") or f"https://rupload.facebook.com/ig-api-upload/{V}/{c['id']}", body=open(video, "rb").read(),
-     headers={"Authorization": f"OAuth {tok}", "offset": "0", "file_size": str(os.path.getsize(video))})
-for _ in range(60):  # Instagram transcodes before it lets you publish
-    st = call(f"{G}/{c['id']}?fields=status_code,status").get("status_code")
-    if st == "FINISHED": break
-    if st in ("ERROR", "EXPIRED"): sys.exit(f"Instagram no pudo procesar el video: {st}")
-    time.sleep(10)
-else: sys.exit("Instagram tardó demasiado en procesar el video")
-mid = call(f"{G}/{ig}/media_publish", {"creation_id": c["id"]})["id"]
-print(call(f"{G}/{mid}?fields=permalink").get("permalink") or f"publicado (id {mid})")
+def upload():
+    """Create the container, send the file and wait; returns the container id or None if Instagram failed to process it."""
+    c = call(f"{G}/{ig}/media", {"media_type": "REELS", "upload_type": "resumable", "caption": caption, "share_to_feed": "true"})
+    call(c.get("uri") or f"https://rupload.facebook.com/ig-api-upload/{V}/{c['id']}", body=open(video, "rb").read(),
+         headers={"Authorization": f"OAuth {tok}", "offset": "0", "file_size": str(os.path.getsize(video))})
+    for _ in range(60):  # Instagram transcodes before it lets you publish
+        st = call(f"{G}/{c['id']}?fields=status_code,status")
+        if st.get("status_code") == "FINISHED": return c["id"]
+        if st.get("status_code") in ("ERROR", "EXPIRED"): print(f"Instagram no procesó el video: {st.get('status')}", file=sys.stderr); return None
+        time.sleep(10)
+    return None
+
+def publish():
+    cid = upload()
+    if not cid: return None
+    mid = call(f"{G}/{ig}/media_publish", {"creation_id": cid})["id"]
+    return call(f"{G}/{mid}?fields=permalink").get("permalink") or f"publicado (id {mid})"
+
+for attempt in range(3):  # Instagram fails to process now and then (ProcessingFailedError): a fresh container usually works
+    try: url = publish()
+    except RuntimeError as e: print(e, file=sys.stderr); url = None
+    if url: print(url); break
+    time.sleep(30)
+else: sys.exit("Instagram no pudo publicar el video tras 3 intentos")
