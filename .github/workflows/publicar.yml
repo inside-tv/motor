@@ -14,6 +14,9 @@ on:
       franja:
         description: "Franja (12 o 19)"
         default: "12"
+      forzar:
+        description: "si = publicar aunque la franja ya figure en el registro"
+        default: "no"
 
 concurrency:
   group: publicar
@@ -45,7 +48,8 @@ jobs:
       - id: registro
         run: |
           f="datos/registro/$(date +%F).md"
-          if [ "${{ github.event_name }}" = schedule ] && grep -q "^## Franja ${FRANJA}:00" "$f" 2>/dev/null; then
+          # the same slot may be woken several times (GitHub cron + cron-job.org): only the first one publishes
+          if [ "${{ github.event.inputs.forzar }}" != "si" ] && grep -q "^## Franja ${FRANJA}:00" "$f" 2>/dev/null; then
             echo "hecho=si" >> "$GITHUB_OUTPUT"; echo "La franja $FRANJA ya se publicó hoy."
           fi
 
