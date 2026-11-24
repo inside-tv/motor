@@ -52,6 +52,12 @@ jobs:
           if [ "${{ github.event.inputs.forzar }}" != "si" ] && grep -q "^## Franja ${FRANJA}:00" "$f" 2>/dev/null; then
             echo "hecho=si" >> "$GITHUB_OUTPUT"; echo "La franja $FRANJA ya se publicó hoy."
           fi
+          # GitHub sometimes fires a cron hours late: a franja-19 run after midnight would publish as "19:00" of the
+          # next day and block that day's real slot. Scheduled runs only count inside their window (Ecuador time).
+          h=$((10#$(date +%H)))
+          if [ "${{ github.event_name }}" = schedule ] && { { [ "$FRANJA" = 12 ] && [ $h -lt 10 -o $h -ge 17 ]; } || { [ "$FRANJA" = 19 ] && [ $h -lt 17 ]; }; }; then
+            echo "hecho=si" >> "$GITHUB_OUTPUT"; echo "Cron retrasado ($h h) fuera de la ventana de la franja $FRANJA: no se publica."
+          fi
 
       - uses: actions/setup-node@v4
         if: steps.registro.outputs.hecho != 'si'
